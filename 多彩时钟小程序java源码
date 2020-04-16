@@ -1,0 +1,198 @@
+package paintTime;
+
+import java.awt.Color;
+import java.awt.Font;
+import java.awt.Graphics;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Timer;
+import java.util.TimerTask;
+
+import javax.swing.JFrame;
+import javax.swing.JPanel;
+
+/**
+ * 制作多彩时钟圆盘
+ * 功能：用3中不同的颜色来表示时分秒，三种颜色相当于三个指针
+ * 实现：窗口、圆盘、12个刻度圆点、色彩处理、时间显示
+ * @author Anthony-Z【旭】
+ *
+ */
+
+public class PaintTime {
+
+	public static final int CIRCLE_D = 500;//圆盘的直径
+	public static final int littleCIRCLE_D = 20;//小圆点的直径
+	
+	public static void main(String[] args) {
+		
+		//创建窗口并把画板添加到窗口中
+		JFrame j = new JFrame("圆点时钟");
+		Mytime m = new Mytime();
+		j.setLocation(420,85);
+		j.setSize(518, 543);
+		m.action();
+		j.add(m);
+		j.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		j.setVisible(true);
+	}
+}
+
+class Mytime extends JPanel{
+	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	
+	double circlePart = PaintTime.CIRCLE_D / 6;
+	myCircle[] mc = new myCircle[12];//12个圆点
+	
+	int hour;
+	int min;
+	int sec;
+	
+	
+	public Mytime() {
+		
+		for (int i = 0; i < mc.length; i++) {
+			mc[i] = new myCircle();
+			
+		}
+		
+		//固定12个圆点在表盘中的位置(用循环计算实在是麻烦，就一个一个来确定位置了)
+		mc[0].x = circlePart * 3;
+		mc[0].y = 0;
+		
+		mc[1].x = circlePart * 4.5;
+		mc[1].y = circlePart * 0.5;
+		
+		mc[2].x = circlePart * 5.4;
+		mc[2].y = circlePart * 1.5;
+		
+		mc[3].x = circlePart * 6 - PaintTime.littleCIRCLE_D;
+		mc[3].y = circlePart * 3;
+		
+		mc[4].x = circlePart * 5.4;
+		mc[4].y = circlePart * 4.3;
+		
+		mc[5].x = circlePart * 4.5;
+		mc[5].y = circlePart * 5.3;
+		
+		mc[6].x = circlePart * 3;
+		mc[6].y = circlePart * 6 - PaintTime.littleCIRCLE_D;
+		
+		mc[7].x = circlePart * 1.3;
+		mc[7].y = circlePart * 5.3;
+		
+		mc[8].x = circlePart * 0.4;
+		mc[8].y = circlePart * 4.3;
+		
+		mc[9].x = 0;
+		mc[9].y = circlePart * 3;
+		
+		mc[10].x = circlePart * 0.4;
+		mc[10].y = circlePart * 1.5;
+		
+		mc[11].x = circlePart * 1.3;
+		mc[11].y = circlePart * 0.5;
+	}
+	
+		
+	
+	@SuppressWarnings("deprecation")
+	public void paint(Graphics g) {
+		
+		Date date = new Date();
+		SimpleDateFormat ft = new SimpleDateFormat("hh:mm:ss");//设置当前时间格式为 时:分:秒
+		
+		//设置画笔
+		super.paint(g);
+		g.setColor(Color.BLACK);
+		g.setFont(new Font("宋体", Font.BOLD,15));
+		
+		g.drawOval(0, 0, PaintTime.CIRCLE_D, PaintTime.CIRCLE_D);//画圆盘轮廓
+		
+		String s1 = "当前时间:";
+		String s2 = ft.format(date).toString();//获取当前时间，格式为"hh:mm:ss"
+		
+		String s3 = "表示时针";
+		String s4 = "表示分针";
+		String s5 = "表示秒针";
+		
+		String s6 = "Designed by Anthony-Z";
+		
+		//画显示文字和显示时间
+		g.drawRect(180, 240, 160, 30);
+		g.drawString(s1, 190, 260);
+		g.drawString(s2, 260, 260);
+		
+		//显示3颜色注释以及开发作者
+		g.setColor(Color.RED);
+		g.fillOval(230, 300, 10, 10);
+		g.setColor(Color.GREEN);
+		g.fillOval(230, 320, 10, 10);
+		g.setColor(Color.YELLOW);
+		g.fillOval(230, 340, 10, 10);
+		
+		g.setColor(Color.BLACK);
+		g.setFont(new Font("宋体", Font.ITALIC, 10));
+		g.drawString(s3, 250, 310);
+		g.drawString(s4, 250, 330);
+		g.drawString(s5, 250, 350);
+		
+		g.setFont(new Font("华文行楷", Font.CENTER_BASELINE ,12));
+		g.drawString(s6, 200, 220);
+		
+		//获取当前时间为int类型
+		hour = date.getHours();
+		min = date.getMinutes();
+		sec = date.getSeconds();
+		
+		if(hour >= 12){
+			hour = hour - 12;//让其一直保持12制格式
+		}
+		
+		for(int i = 0; i < mc.length ; i++){//画12个圆点
+			
+			if(hour == i){//判断时钟刻度是否指到该指针，如果是，给其强调颜色为红色
+				g.setColor(Color.RED);
+				g.fillOval((int)mc[i].x, (int)mc[i].y, 20, 20);
+				
+			}else if(min / 5 == i){//判断分钟刻度是否指到该指针，如果是，给其强调颜色为绿色
+				g.setColor(Color.GREEN);
+				g.fillOval((int)mc[i].x, (int)mc[i].y, 20, 20);
+				
+			}else if(sec / 5 == i){//判断秒钟刻度是否指到该指针，如果是，给其强调颜色为黄色
+				g.setColor(Color.YELLOW);
+				g.fillOval((int)mc[i].x, (int)mc[i].y, 20, 20);
+				
+			}else{//如果都不符合，则显示为普通黑色
+				g.setColor(Color.BLACK);
+				g.fillOval((int)mc[i].x, (int)mc[i].y, 20, 20);
+			}
+			
+		}
+		
+	}
+	
+	Timer time = new Timer();
+	public void action(){
+		time.schedule(new TimerTask(){
+			public void run(){
+				repaint();//每隔100ms重绘一次
+			}
+		},100,100);
+	}
+}
+
+class myCircle {//创建圆点类，定义横纵坐标属性
+	double x;
+	double y;
+	
+	public myCircle() {
+		x = 0;
+		y = 0;
+	}
+}
+
